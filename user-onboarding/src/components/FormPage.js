@@ -3,6 +3,7 @@ import { withFormik, Form, Field } from "formik";
 import * as Yup from "yup";
 import axios from "axios";
 
+
 const FormPage = props => {
 
     const [users, setUsers] = useState([]);
@@ -32,12 +33,23 @@ const FormPage = props => {
                     <p className="error">{props.errors.password}</p>
                 )}
 
+                <Field component="select" name="role" placeholder="role" >
+                    <option value="">Role</option>
+                    <option value="front-end">front-end</option>
+                    <option value="back-end">back-end</option>
+                    <option value="UI">UI</option>
+                </Field>
+                
+                
+                {props.touched.password && props.errors.password && (
+                    <p className="error">{props.errors.password}</p>
+                )}
+
                 <label className="checkbox-container">
-                    <Field
-                        type="checkbox"
-                        name="terms"
-                        checked={props.values.terms}
-                    />
+                    <Field type="checkbox" name="terms" checked={props.values.terms} />
+                    {props.touched.terms && props.errors.terms && (
+                        <p className="error">{props.errors.terms}</p>
+                    )}
                     Terms of Service
                     <span className="checkmark" />
                 </label>
@@ -47,6 +59,7 @@ const FormPage = props => {
             {users.map(user => (
                 <ul key={user.id}>
                     <li>name: {user.name}</li>
+                    <li>role: {user.role}</li>
                     <li>email: {user.email}</li>
                     <li>password: {user.password}</li>
                 </ul>
@@ -62,17 +75,20 @@ const myMapPropsToValues = props => {
         name: props.name || "",
         email: props.email || "",
         password: props.password || "",
+        role: props.role || "",
         terms: props.terms || false
     };
 };
 
-const myHandleSubmit = (values, { setStatus }) => {
+const myHandleSubmit = (values, { setStatus, resetForm }) => {
     console.log("submit pressed! ... sending...");
     axios
       .post("https://reqres.in/api/users/", values)
       .then(res => {
-        console.log(res);
+        console.log(Object.keys);
         setStatus(res.data);
+        // Object.keys(values).forEach(key => (values[key] = ""));
+        resetForm();
       })
       .catch(err => console.log(err));
   };
@@ -80,7 +96,8 @@ const myHandleSubmit = (values, { setStatus }) => {
 const yupSchema = Yup.object().shape({
     name: Yup.string().required("please enter a name"),
     email: Yup.string().required("please enter an email"),
-    password: Yup.string().required("please enter a password")
+    password: Yup.string().required("please enter a password"),
+    terms: Yup.boolean().oneOf([true], 'Must Accept Terms of Service')
   });
 
 const formikObj = {
