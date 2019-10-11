@@ -6,13 +6,23 @@ import axios from "axios";
 
 const FormPage = props => {
 
+
+
     const [users, setUsers] = useState([]);
+
+    const removeUser = index => {
+        const newUsers = [...users];
+        newUsers.splice(index, 1);
+        setUsers(newUsers)
+      }
 
     useEffect(() => {
         if(props.status) {
             setUsers([...users, props.status])
         }
     }, [props.status]);
+
+    console.log(users)
 
 
     return (
@@ -56,14 +66,15 @@ const FormPage = props => {
 
                 <button type="submit">Submit!</button>
             </Form>
-            {users.map(user => (
+            {users.map((user, index) =>
                 <ul key={user.id}>
                     <li>name: {user.name}</li>
                     <li>role: {user.role}</li>
                     <li>email: {user.email}</li>
                     <li>password: {user.password}</li>
+                    <button onClick={() => removeUser(index)}>Delete</button>
                 </ul>
-            ))}
+            )}
         </div>
     )
 
@@ -87,7 +98,6 @@ const myHandleSubmit = (values, { setStatus, resetForm }) => {
       .then(res => {
         console.log(Object.keys);
         setStatus(res.data);
-        // Object.keys(values).forEach(key => (values[key] = ""));
         resetForm();
       })
       .catch(err => console.log(err));
